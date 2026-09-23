@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 
+from app.api.products import router as products_router
+
+
 app = FastAPI(title="SmartTag API")
+
 
 @app.get("/")
 def home():
@@ -8,6 +12,5 @@ def home():
         "message": "SmartTag Backend is running!"
     }
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+
+app.include_router(products_router)
