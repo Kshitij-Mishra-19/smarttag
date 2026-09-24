@@ -7,6 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.tag import Tag
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -42,4 +46,9 @@ class Product(Base):
         DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
+    )
+
+    tags: Mapped[list["Tag"]] = relationship(
+        "Tag",
+        back_populates="product",
     )

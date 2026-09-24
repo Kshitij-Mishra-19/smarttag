@@ -3,9 +3,16 @@ from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+
+from typing import TYPE_CHECKING
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.product import Product
+
 
 
 class Tag(Base):
@@ -33,4 +40,9 @@ class Tag(Base):
         DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
+    )
+
+    product: Mapped["Product"] = relationship(
+        "Product",
+        back_populates="tags",
     )
