@@ -6,7 +6,11 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.schemas.tag import TagCreate, TagResponse
-from app.services.tag_service import create_tag, get_tag_by_id
+from app.services.tag_service import (
+    create_tag,
+    get_tag_by_code,
+    get_tag_by_id,
+)
 
 
 router = APIRouter(
@@ -44,6 +48,22 @@ def get_tag(
     db: Session = Depends(get_db),
 ):
     tag = get_tag_by_id(db, tag_id)
+
+    if tag is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Tag not found",
+        )
+
+    return tag
+
+
+@router.get("/code/{tag_code}", response_model=TagResponse)
+def get_tag_by_code_api(
+    tag_code: str,
+    db: Session = Depends(get_db),
+):
+    tag = get_tag_by_code(db, tag_code)
 
     if tag is None:
         raise HTTPException(
