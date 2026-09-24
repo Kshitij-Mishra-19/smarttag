@@ -40,6 +40,54 @@ def test_create_tag():
     assert data["product_id"] == product_id
 
 
+def test_get_tag():
+    product_response = client.post(
+        "/products/",
+        json={
+            "name": "Get Tag Product",
+            "sku": f"TEST-GET-TAG-PRODUCT-{uuid.uuid4()}",
+            "price": 799,
+            "description": "Product for get tag test",
+        },
+    )
+
+    assert product_response.status_code == 200
+
+    product_id = product_response.json()["id"]
+    tag_code = f"TEST-GET-TAG-{uuid.uuid4()}"
+
+    create_response = client.post(
+        "/tags/",
+        json={
+            "tag_code": tag_code,
+            "product_id": product_id,
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    tag_id = create_response.json()["id"]
+
+    response = client.get(f"/tags/{tag_id}")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["id"] == tag_id
+    assert data["tag_code"] == tag_code
+    assert data["product_id"] == product_id
+
+
+def test_get_tag_not_found():
+    tag_id = uuid.uuid4()
+
+    response = client.get(f"/tags/{tag_id}")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Tag not found"
+
+
 def test_create_tag_duplicate_code():
     product_response = client.post(
         "/products/",

@@ -1,3 +1,6 @@
+import uuid
+
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -21,3 +24,9 @@ def create_tag(db: Session, tag: TagCreate):
         raise
 
     return new_tag
+
+
+def get_tag_by_id(db: Session, tag_id: uuid.UUID):
+    statement = select(Tag).where(Tag.id == tag_id)
+
+    return db.scalar(statement)
