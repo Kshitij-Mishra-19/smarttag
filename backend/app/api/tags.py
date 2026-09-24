@@ -42,12 +42,12 @@ def create_tag_api(
         )
 
 
-@router.get("/{tag_id}", response_model=TagResponse)
-def get_tag(
-    tag_id: uuid.UUID,
+@router.get("/code/{tag_code}", response_model=TagResponse)
+def get_tag_by_code_api(
+    tag_code: str,
     db: Session = Depends(get_db),
 ):
-    tag = get_tag_by_id(db, tag_id)
+    tag = get_tag_by_code(db, tag_code)
 
     if tag is None:
         raise HTTPException(
@@ -58,12 +58,12 @@ def get_tag(
     return tag
 
 
-@router.get("/code/{tag_code}", response_model=TagResponse)
-def get_tag_by_code_api(
-    tag_code: str,
+@router.get("/{tag_id}", response_model=TagResponse)
+def get_tag(
+    tag_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
-    tag = get_tag_by_code(db, tag_code)
+    tag = get_tag_by_id(db, tag_id)
 
     if tag is None:
         raise HTTPException(
