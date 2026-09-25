@@ -107,3 +107,91 @@ def test_get_order_not_found():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Order not found"
+
+def test_update_order_status():
+    product_response = client.post(
+        "/products/",
+        json={
+            "name": "Status Test Product",
+            "sku": f"TEST-STATUS-PRODUCT-{uuid.uuid4()}",
+            "price": 1599,
+            "description": "Product for order status test",
+        },
+    )
+
+    assert product_response.status_code == 200
+    product_id = product_response.json()["id"]
+
+    tag_response = client.post(
+        "/tags/",
+        json={
+            "tag_code": f"TEST-STATUS-TAG-{uuid.uuid4()}",
+            "product_id": product_id,
+        },
+    )
+
+    assert tag_response.status_code == 200
+    tag_id = tag_response.json()["id"]
+
+    order_response = client.post(
+        "/orders/",
+        json={
+            "product_id": product_id,
+            "tag_id": tag_id,
+        },
+    )
+
+    assert order_response.status_code == 200
+    order_id = order_response.json()["id"]
+
+    response = client.patch(
+        f"/orders/{order_id}/status",
+        json={"status": "paid"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "paid"
+
+def test_invalid_order_status_transition():
+    product_response = client.post(
+        "/products/",
+        json={
+            "name": "Invalid Status Test Product",
+            "sku": f"TEST-INVALID-STATUS-PRODUCT-{uuid.uuid4()}",
+            "price": 1699,
+            "description": "Product for invalid status test",
+        },
+    )
+
+    assert product_response.status_code == 200
+    product_id = product_response.json()["id"]
+
+    tag_response = client.post(
+        "/tags/",
+        json={
+            "tag_code": f"TEST-INVALID-STATUS-TAG-{uuid.uuid4()}",
+            "product_id": product_id,
+        },
+    )
+
+    assert tag_response.status_code == 200
+    tag_id = tag_response.json()["id"]
+
+    order_response = client.post(
+        "/orders/",
+        json={
+            "product_id": product_id,
+            "tag_id": tag_id,
+        },
+    )
+
+    assert order_response.status_code == 200
+    order_id = order_response.json()["id"]
+
+    response = client.patch(
+        f"/orders/{order_id}/status",
+        json={"status": "completed"},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid order status transition"
