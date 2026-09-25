@@ -35,3 +35,11 @@ def get_tag_by_code(db: Session, tag_code: str):
     statement = select(Tag).where(Tag.tag_code == tag_code)
 
     return db.scalar(statement)
+
+def get_tags_by_product_id(
+    db: Session,
+    product_id: uuid.UUID,
+):
+    statement = select(Tag).where(Tag.product_id == product_id)
+
+    return db.scalars(statement).all()

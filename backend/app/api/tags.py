@@ -10,6 +10,7 @@ from app.services.tag_service import (
     create_tag,
     get_tag_by_code,
     get_tag_by_id,
+    get_tags_by_product_id,
 )
 
 
@@ -40,6 +41,13 @@ def create_tag_api(
             status_code=409,
             detail="Tag code already exists",
         )
+
+@router.get("/product/{product_id}", response_model=list[TagResponse])
+def get_tags_by_product(
+    product_id: uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    return get_tags_by_product_id(db, product_id)
 
 
 @router.get("/code/{tag_code}", response_model=TagResponse)
