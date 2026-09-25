@@ -17,6 +17,9 @@ class OrderResponse(BaseModel):
     id: uuid.UUID
     product_id: uuid.UUID
     tag_id: uuid.UUID
+    payment_provider: str | None
+    payment_order_id: str | None
+    payment_transaction_id: str | None
     amount: float
     status: str
     created_at: datetime

@@ -40,6 +40,23 @@ class Order(Base):
         default="pending",
     )
 
+    payment_provider: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
+
+    payment_order_id: Mapped[str | None] = mapped_column(
+        String,
+        unique=True,
+        nullable=True,
+    )
+
+    payment_transaction_id: Mapped[str | None] = mapped_column(
+        String,
+        unique=True,
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

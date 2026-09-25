@@ -47,6 +47,7 @@ def create_order(db: Session, order: OrderCreate):
         product_id=product.id,
         tag_id=tag.id,
         amount=product.price,
+        status="pending",
     )
 
     db.add(new_order)
