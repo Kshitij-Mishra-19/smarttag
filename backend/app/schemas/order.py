@@ -12,6 +12,12 @@ class OrderCreate(BaseModel):
 class OrderStatusUpdate(BaseModel):
     status: str
 
+class MockPaymentResponse(BaseModel):
+    order_id: uuid.UUID
+    payment_status: str
+    payment_order_id: str
+    payment_transaction_id: str
+
 
 class OrderResponse(BaseModel):
     id: uuid.UUID
@@ -19,6 +25,7 @@ class OrderResponse(BaseModel):
     tag_id: uuid.UUID
     payment_provider: str | None
     payment_order_id: str | None
+    payment_session_id: str | None
     payment_transaction_id: str | None
     amount: float
     status: str

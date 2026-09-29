@@ -51,6 +51,11 @@ class Order(Base):
         nullable=True,
     )
 
+    payment_session_id: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
+
     payment_transaction_id: Mapped[str | None] = mapped_column(
         String,
         unique=True,
