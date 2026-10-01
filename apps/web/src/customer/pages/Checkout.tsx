@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { createOrder, getTagsByProduct } from "../../services/api";
+import { load } from "@cashfreepayments/cashfree-js";
 
 const checkoutProduct = {
   name: "Black T-Shirt",
@@ -35,13 +37,58 @@ function Checkout() {
 
   const total = subtotal;
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
+  try {
     setPaymentState("processing");
 
-    window.setTimeout(() => {
-      setPaymentState("success");
-    }, 1800);
-  };
+    const productId = searchParams.get("product");
+
+    if (!productId) {
+      throw new Error("Product not selected");
+    }
+
+    const tags = await getTagsByProduct(productId);
+
+    const availableTag = tags.find(
+      (tag) => tag.status === "available",
+    );
+
+    if (!availableTag) {
+      throw new Error("No available SmartTag found");
+    }
+
+    const order = await createOrder(
+      productId,
+      availableTag.id,
+    );
+
+    if (!order.payment_session_id) {
+      throw new Error(
+        "Payment session was not created",
+      );
+    }
+
+    console.log("Cashfree payment session:", order.payment_session_id);
+
+    const cashfree = await load({
+  mode: "sandbox",
+});
+
+if (!cashfree) {
+  throw new Error("Cashfree SDK failed to load");
+}
+
+await cashfree.checkout({
+  paymentSessionId: order.payment_session_id,
+  redirectTarget: "_modal",
+});
+
+    // Cashfree checkout integration next
+  } catch (error) {
+    console.error(error);
+    setPaymentState("checkout");
+  }
+};
 
   if (paymentState === "processing") {
     return (

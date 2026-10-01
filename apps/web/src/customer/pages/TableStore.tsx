@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getProducts } from "../../services/api";
 
 type TableData = {
   id: string;
@@ -20,14 +21,14 @@ type TableData = {
 type Product = {
   id: string;
   name: string;
-  category: string;
+  sku: string;
   price: number;
+  description: string | null;
+  category: string;
   sizes: string[];
   color: string;
   tagCount: number;
 };
-
-const API_BASE_URL = "http://127.0.0.1:8000";
 
 const tables: Record<string, TableData> = {
   "T-001": {
@@ -49,15 +50,17 @@ const tables: Record<string, TableData> = {
     productIds: ["ST-HD-021", "ST-JK-014"],
   },
   "T-004": {
-    id: "T-004",
-    name: "Table 04",
-    zone: "T-Shirts",
-    productIds: [
-      "ST-TS-001",
-      "ST-HD-021",
-      "ST-JK-014",
-    ],
-  },
+  id: "T-004",
+  name: "Table 04",
+  zone: "T-Shirts",
+  productIds: [
+    "TS-BLK-001",
+    "TS-BLU-001",
+    "TS-GRN-001",
+    "TS-GRN-002",
+    "TS-GRN-999",
+  ],
+},
 };
 
 function TableStore() {
@@ -88,21 +91,22 @@ function TableStore() {
         setProductsLoading(true);
         setProductsError(false);
 
-        const response = await fetch(
-          `${API_BASE_URL}/api/products`,
-        );
+        const data = await getProducts();
 
-        if (!response.ok) {
-          throw new Error("Failed to load products");
-        }
-
-        const data = (await response.json()) as {
-          products: Product[];
-          count: number;
-        };
+        const mappedProducts: Product[] = data.map((product) => ({
+          id: product.id,
+          name: product.name,
+          sku: product.sku,
+          price: product.price,
+          description: product.description,
+          category: "SmartTag Product",
+          sizes: ["One Size"],
+          color: "Default",
+          tagCount: 0,
+        }));
 
         if (!cancelled) {
-          setProducts(data.products);
+          setProducts(mappedProducts);
         }
       } catch (error) {
         console.error(
@@ -133,7 +137,7 @@ function TableStore() {
     }
 
     return products.filter((product) =>
-      table.productIds.includes(product.id),
+      table.productIds.includes(product.sku),
     );
   }, [products, table]);
 
@@ -181,7 +185,9 @@ function TableStore() {
       return;
     }
 
-    navigate(`/checkout?table=${table.id}`);
+    navigate(
+      `/checkout?table=${table.id}&product=${selectedProduct.id}&size=${selectedSize}&quantity=${quantity}`,
+    );
   };
 
   if (!table) {
